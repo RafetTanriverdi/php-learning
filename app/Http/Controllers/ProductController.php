@@ -16,7 +16,44 @@ class ProductController extends Controller
         $perPage = $request->integer('per_page', 10);
 
         $perPage = min($perPage, 100);
-        $products = Product::paginate($perPage);
+
+        $query = Product::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->filled('in_stock')) {
+            if ($request->boolean('in_stock')) {
+                $query->where('stock', '>', 0);
+            }
+        }
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction', 'asc');
+
+        $allowedSorts = [
+            'id', 'name', 'price',
+            'stock', 'created_at',
+        ];
+
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'id';
+        }
+        if (! in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+
+        $products = $query
+            ->orderBy($sort, $direction)
+            ->paginate($perPage);
 
         return ProductResource::collection(
             $products
