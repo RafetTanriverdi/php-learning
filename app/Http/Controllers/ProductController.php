@@ -2,46 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductFilterRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(ProductFilterRequest $request)
     {
-        $perPage = min(
-            $request->integer('per_page', 10),
-            100
-        );
-        $sort = $request->get('sort', 'id');
-        $direction = $request->get('direction', 'asc');
-        $allowedSorts = [
-            'id',
-            'name',
-            'price',
-            'stock',
-            'created_at',
-        ];
-        if (! in_array($sort, $allowedSorts)) {
-            $sort = 'id';
-        }
+        $validated = $request->validated();
+        $perPage = $validated['per_page'] ?? 10;
 
-        if (! in_array($direction, ['asc', 'desc'])) {
-            $direction = 'asc';
-        }
-
+        $direction = $validated['direction'] ?? 'asc';
+        $sort = $validated['sort'] ?? 'id';
         $products = Product::query()
-            ->search($request->get('search'))
-            ->minPrice($request->get('min_price'))
-            ->maxPrice($request->get('max_price'))
+            ->search($validated['search'] ?? null)
+            ->minPrice($validated['min_price'] ?? null)
+            ->maxPrice($validated['max_price'] ?? null)
             ->inStock($request->boolean('in_stock'))
             ->orderBy($sort, $direction)
             ->paginate($perPage);
 
         return ProductResource::collection($products);
+
     }
 
     public function show(Product $product)
