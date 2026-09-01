@@ -18,6 +18,7 @@ class ProductController extends Controller
         $direction = $validated['direction'] ?? 'asc';
         $sort = $validated['sort'] ?? 'id';
         $products = Product::query()
+            ->with('category')
             ->search($validated['search'] ?? null)
             ->minPrice($validated['min_price'] ?? null)
             ->maxPrice($validated['max_price'] ?? null)
@@ -31,7 +32,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-
+        $product->loadMissing('category');
         return new ProductResource($product);
     }
 
