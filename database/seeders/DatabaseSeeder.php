@@ -18,13 +18,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        Category::factory()
+        $categories = Category::factory()
             ->count(5)
             ->create();
 
         Product::factory()
             ->count(100)
-            ->create();
+            ->make()
+            ->each(function (Product $product) use ($categories) {
+                $product->category_id = $categories->random()->id;
+                $product->save();
+            });
 
         User::factory()->create([
             'name' => 'Test User',
