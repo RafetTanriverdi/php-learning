@@ -48,7 +48,7 @@ class ProductFilterRequest extends FormRequest
             'sort' => ['nullable', 'in:id,name,price,stock,created_at'],
             'direction' => ['nullable', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
-
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
         ];
     }
 }

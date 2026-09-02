@@ -22,7 +22,8 @@ class ProductController extends Controller
             ->search($validated['search'] ?? null)
             ->minPrice($validated['min_price'] ?? null)
             ->maxPrice($validated['max_price'] ?? null)
-            ->inStock($request->boolean('in_stock'))
+            ->inStock($request->boolean('in_stock') ?? false)
+            ->category($validated['category_id'] ?? null)
             ->orderBy($sort, $direction)
             ->paginate($perPage);
 
@@ -33,6 +34,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->loadMissing('category');
+
         return new ProductResource($product);
     }
 

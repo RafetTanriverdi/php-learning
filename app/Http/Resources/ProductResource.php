@@ -22,8 +22,8 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'category' => $this->whenLoaded('category', function () {
                 return [
-                    'id' => $this->category->id,
-                    'name' => $this->category->name,
+                    'id' => $this->category?->id,
+                    'name' => $this->category?->name,
                 ];
             }),
         ];
