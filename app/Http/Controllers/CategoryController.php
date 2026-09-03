@@ -6,9 +6,12 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Traits\ApiResponse;
 
 class CategoryController extends Controller
 {
+    use ApiResponse;
+
     public function index()
     {
         $categories = Category::query()
@@ -27,11 +30,16 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request)
     {
+        $this->authorize('create', Category::class);
         $category = Category::create(
             $request->validated()
         );
 
-        return new CategoryResource($category);
+        return $this->successResponse(
+            data: new CategoryResource($category),
+            message: 'Kategori oluşturuldu',
+            status: 201
+        );
 
     }
 
@@ -39,15 +47,22 @@ class CategoryController extends Controller
         UpdateCategoryRequest $request,
         Category $category
     ) {
+        $this->authorize('delete', $category);
         $category->update(
             $request->validated()
         );
 
-        return new CategoryResource($category);
+        return $this->successResponse(
+            data: new CategoryResource($category),
+            message: 'Kategori Güncellendi',
+            status: 201
+        );
+
     }
 
     public function destroy(Category $category)
     {
+        $this->authorize('delete', $category);
         $category->delete();
 
         return response()->json([
