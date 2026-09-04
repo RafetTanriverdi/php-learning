@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ProductCreated;
-use Illuminate\Support\Facades\Log;
+use App\Jobs\ProcessProductCreated;
 
 class LogProductCreated
 {
@@ -20,9 +20,6 @@ class LogProductCreated
      */
     public function handle(ProductCreated $event): void
     {
-        Log::info('New Product Created', [
-            'product_id' => $event->product->id,
-            'name' => $event->product->name,
-        ]);
+        ProcessProductCreated::dispatch($event->product);
     }
 }
