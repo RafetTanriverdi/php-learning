@@ -7,11 +7,17 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Services\ProductService;
 use App\Traits\ApiResponse;
+
 
 class ProductController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        private ProductService $productService
+    ) {}
 
     public function index(ProductFilterRequest $request)
     {
@@ -43,42 +49,25 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
-
-        $this->authorize('create', Product::class);
-
-        $product = Product::create(
+        $product = $this->productService->create(
             $request->validated()
-        );
-
-        return $this->successResponse(
-            data: new ProductResource($product->load('category')),
-            message: 'Ürün oluşturuldu.',
-            status: 201
         );
     }
 
     public function update(UpdateProductRequest $request, Product $product)
     {
-
-        $this->authorize('update', $product);
-        $product->update($request->validated());
-
-        return $this->successResponse(
-            data: new ProductResource($product->load('category')),
-            message: 'Ürün güncellendi.'
+        $product = $this->productService->update(
+            $product,
+            $request->validated()
         );
 
     }
 
     public function destroy(Product $product)
     {
-
-        $this->authorize('delete', $product);
-
-        $product->delete();
-
-        return response()->json([
-            'message' => ' Product Deleted',
-        ]);
+        $product = $this->productService->update(
+            $product,
+            $request->validated()
+        );
     }
 }
