@@ -22,12 +22,23 @@ class FavoriteController extends Controller
 
     public function store(Request $request, Product $product)
     {
-        $request->user()
-            ->favoriteProducts()
-            ->syncWithoutDetaching(['$product->id']);
+        $user = $request->user();
 
-        return response->json([
-            'message' => 'Ürün Favorilere eklendi',
+        $alreadyExists = $user->favorites()
+            ->where('products.id', $product->id)
+            ->exists();
+
+        if ($alreadyExists) {
+            return response()->json([
+                'message' => 'Bu ürün zaten favorilerde.',
+            ], 409);
+        }
+
+        $user->favorites()
+            ->attach($product->id);
+
+        return response()->json([
+            'message' => 'Ürün favorilere eklendi.',
         ], 201);
     }
 

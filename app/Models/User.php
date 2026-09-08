@@ -39,6 +39,6 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(
             Product::class,
             'favorites'
-        )->withTimesTamps();
+        )->withTimestamps();
     }
 }
