@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -61,5 +62,21 @@ Route::middleware('auth:api')->group(function () {
     Route::delete(
         '/notifications/{id}',
         [NotificationController::class, 'destroy']
+    );
+});
+
+// Favorites
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+
+    Route::post(
+        '/favorites/{product}',
+        [FavoriteController::class, 'store']
+    );
+
+    Route::delete(
+        '/favorites/{product}',
+        [FavoriteController::class, 'destroy']
     );
 });
