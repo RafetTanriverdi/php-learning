@@ -3,11 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\UserLoggedIn;
-use App\Mail\LoginNotificationMail;
+use App\Notifications\LoginNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class SendLoginNotification implements ShouldQueue
 {
@@ -38,25 +36,13 @@ class SendLoginNotification implements ShouldQueue
             }
         }
 
-        Log::info('Login mail gönderiliyor', [
-            'email' => $event->user->email,
-            'ip' => $event->ip,
-            'location' => $location,
-        ]);
-
-        Mail::to($event->user->email)
-            ->send(
-                new LoginNotificationMail(
-                    $event->user,
-                    $event->ip,
-                    $event->userAgent,
-                    $event->loginAt,
-                    $location,
-                )
-            );
-
-        Log::info('Login mail gönderildi', [
-            'email' => $event->user->email,
-        ]);
+        $event->user->notify(
+            new LoginNotification(
+                $event->ip,
+                $event->userAgent,
+                $event->loginAt,
+                $location,
+            )
+        );
     }
 }
